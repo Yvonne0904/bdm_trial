@@ -1,7 +1,9 @@
+import sys
 import csv
 import json
 import numpy as np
 import pandas as pd
+import IPython
 
 import pyspark
 from pyspark.sql import SparkSession
@@ -38,6 +40,22 @@ df_pattern = df_pattern.filter(F.col("placekey").isin(placeList)).select("placek
 
 dateList = ['2019-03','2019-10','2020-03','2020-10']
 df_pattern2 = df_pattern.filter(F.col("Formatted_start_date").isin(dateList) | F.col("Formatted_end_date").isin(dateList)).cache()
+
+def extract_date(col1,col2):
+  res = ''
+  if col1 == col2:
+    res = col1 
+  
+  elif col1 in ['2019-03','2019-10','2020-03','2020-10']:
+    res = col1
+
+  elif col2 in ['2019-03','2019-10','2020-03','2020-10']:
+    res = col2 
+  
+  return res
+
+dateUdf = F.udf(extract_date,T.StringType())
+df_pattern_date = df_pattern2.withColumn('date',dateUdf('Formatted_start_date','Formatted_end_date')).select('poi_cbg','visitor_home_cbgs','date').cache()
 
 def f_key(col1):
   visitor_home_cbg = json.loads(col1)
