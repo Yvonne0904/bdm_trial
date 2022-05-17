@@ -2,7 +2,6 @@ import csv
 import json
 import numpy as np
 import pandas as pd
-import IPython
 
 import pyspark
 from pyspark.sql import SparkSession
